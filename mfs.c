@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
+#define __USE_BSD // linux strdup
 #include <string.h>
 #include <strings.h>
 #include <errno.h>

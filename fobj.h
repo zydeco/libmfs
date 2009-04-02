@@ -1,5 +1,5 @@
 // reverse engineered FOBJ resource
-
+// values are big endian
 struct __attribute__ ((__packed__)) FOBJrsrc {
     int16_t     fdType;         // 8 = folder, 4 = disk
     struct {
