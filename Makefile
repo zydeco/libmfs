@@ -1,16 +1,16 @@
 LIB = libmfs.a
 
 CC = gcc
-#CC = arm-apple-darwin9-gcc
 AR = ar
-CFLAGS = -std=c99 -I.. -DUSE_LIBRES
-#CFLAGS = -std=c99 -I.. -march=armv6 -mcpu=arm1176jzf-s
+RANLIB = ranlib
+CFLAGS = -fPIC -std=c99 -I.. -DUSE_LIBRES
 
 all: $(LIB)
 
 $(LIB): mfs.c
 	$(CC) -c $(CFLAGS) mfs.c
 	$(AR) -ru $(LIB) mfs.o
+	$(RANLIB) $(LIB)
 
 clean:
 	rm -rf libmfs.a mfs.o
