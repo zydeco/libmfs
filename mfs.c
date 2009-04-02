@@ -26,8 +26,11 @@
 #include <errno.h>
 #include <arpa/inet.h>
 #include "mfs.h"
+#if defined(USE_LIBRES)
+#include "fobj.h"
+#endif
 
-const char * libmfs_id = "libmfs 1.0.0 (C)2008-2009 namedfork.net";
+const char * libmfs_id = "libmfs 1.0.1 (C)2008-2009 namedfork.net";
 
 // printable flags
 #define BINFLG8(x) ((x)&0x80?'1':'0'),((x)&0x40?'1':'0'),((x)&0x20?'1':'0'),((x)&0x10?'1':'0'),((x)&0x08?'1':'0'),((x)&0x04?'1':'0'),((x)&0x02?'1':'0'),((x)&0x01?'1':'0')
@@ -654,6 +657,8 @@ int mfs_load_folders (MFSVolume *vol) {
     ResAttr * fobj = res_list(vol->desktop, 'FOBJ', NULL, 0, 0, &count, NULL);
     if (fobj == NULL) return 0;
     vol->folders = calloc(count, sizeof(struct MFSFolder));
+    if (vol->folders == NULL) return 0;
+    bzero(vol->folders, sizeof(struct MFSFolder)*count);
     vol->numFolders = count;
     
     // fill
@@ -661,23 +666,18 @@ int mfs_load_folders (MFSVolume *vol) {
         vol->folders[i].fdID = fobj[i].ID;
         strncpy(vol->folders[i].fdCNam, fobj[i].name, 65); // stupid linux has no strlcpy
         vol->folders[i].fdCNam[64] = '\0';
-        res_read(vol->desktop, 'FOBJ', fobj[i].ID, &(vol->folders[i].fdParent), 0x0C, 2, NULL, NULL);
-        vol->folders[i].fdParent = ntohs(vol->folders[i].fdParent);
         
-        res_read(vol->desktop, 'FOBJ', fobj[i].ID, &(vol->folders[i].fdCrDat), 0x1A, 4, NULL, NULL);
-        vol->folders[i].fdCrDat = ntohl(vol->folders[i].fdCrDat);
+        // FOBJ resource
+        FOBJrsrc * fr = res_read(vol->desktop, 'FOBJ', fobj[i].ID, NULL, 0, sizeof(FOBJrsrc), NULL, NULL);
+        if (fr) {
+            vol->folders[i].fdParent = ntohs(fr->parent);
+            vol->folders[i].fdCrDat = ntohl(fr->fdCrDat);
+            vol->folders[i].fdMdDat = ntohl(fr->fdMdDat);
+            vol->folders[i].fdFlags = ntohl(fr->fdFlags);
+            vol->folders->fdLocV = ntohs(fr->fdIconPos.v);
+            vol->folders->fdLocH = ntohs(fr->fdIconPos.h);
+        }
         
-        res_read(vol->desktop, 'FOBJ', fobj[i].ID, &(vol->folders[i].fdMdDat), 0x1E, 4, NULL, NULL);
-        vol->folders[i].fdMdDat = ntohl(vol->folders[i].fdMdDat);
-        
-        res_read(vol->desktop, 'FOBJ', fobj[i].ID, &(vol->folders[i].fdFlags), 0x26, 2, NULL, NULL);
-        vol->folders[i].fdFlags = ntohs(vol->folders[i].fdFlags);
-        
-        res_read(vol->desktop, 'FOBJ', fobj[i].ID, &(vol->folders[i].fdLocV), 0x02, 2, NULL, NULL);
-        vol->folders[i].fdLocV = ntohs(vol->folders[i].fdLocV);
-        res_read(vol->desktop, 'FOBJ', fobj[i].ID, &(vol->folders[i].fdLocH), 0x04, 2, NULL, NULL);
-        vol->folders[i].fdLocH = ntohs(vol->folders[i].fdLocH);
-
         vol->folders[i].fdSubdirs = 0;
     }
     
