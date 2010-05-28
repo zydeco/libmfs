@@ -182,12 +182,8 @@ typedef struct MFSFork MFSFork;
 
 #define kAppleDoubleHeaderLength        0x300
 #define kAppleDoubleResourceForkOffset  kAppleDoubleHeaderLength
-#define kAppleDoubleFileInfoOffset      0x70
-#define kAppleDoubleFileInfoLength      0x10
-#define kAppleDoubleFinderInfoOffset    0x80
+#define kAppleDoubleFinderInfoOffset    0x70
 #define kAppleDoubleFinderInfoLength    0x20
-#define kAppleDoubleRealNameOffset      0xA0
-#define kAppleDoubleCommentOffset       0x1A0
 
 // open/close volume
 MFSVolume* mfs_vopen (const char *path, size_t offset, int flags);

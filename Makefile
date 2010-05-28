@@ -3,7 +3,7 @@ LIB = libmfs.a
 CC = gcc
 AR = ar
 RANLIB = ranlib
-CFLAGS = -Wno-multichar -fPIC -std=c99 -I.. -DUSE_LIBRES
+CFLAGS = -arch i386 -arch ppc -arch x86_64 -fPIC -std=c99 -I.. -DUSE_LIBRES
 
 all: $(LIB)
 

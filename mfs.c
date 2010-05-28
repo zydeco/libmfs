@@ -21,7 +21,6 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
-#define __USE_BSD // linux strdup
 #include <string.h>
 #include <strings.h>
 #include <errno.h>
@@ -31,7 +30,7 @@
 #include "fobj.h"
 #endif
 
-const char * libmfs_id = "libmfs 1.0.1 (C)2008-2009 namedfork.net";
+const char * libmfs_id = "libmfs 1.0.2 (C)2008-2010 namedfork.net";
 
 // printable flags
 #define BINFLG8(x) ((x)&0x80?'1':'0'),((x)&0x40?'1':'0'),((x)&0x20?'1':'0'),((x)&0x10?'1':'0'),((x)&0x08?'1':'0'),((x)&0x04?'1':'0'),((x)&0x02?'1':'0'),((x)&0x01?'1':'0')
@@ -158,50 +157,50 @@ struct timespec mfs_timespec (uint32_t mfsDate) {
 #if defined(LIBMFS_VERBOSE)
 int mfs_printmdb (MFSMasterDirectoryBlock *mdb) {
     time_t t;
-    printf("MASTER DIRECTORY BLOCK:\n");
-    printf("  signature:  $%04X\n", mdb->drSigWord);
+    fprintf(stderr, "MASTER DIRECTORY BLOCK:\n");
+    fprintf(stderr, "  signature:  $%04X\n", mdb->drSigWord);
     t = mfs_time(mdb->drCrDate);
-    printf("  creation:   %s", asctime(localtime(&t)));
+    fprintf(stderr, "  creation:   %s", asctime(localtime(&t)));
     t = mfs_time(mdb->drLsBkUp);
-    printf("  backup:     %s", asctime(localtime(&t)));
-    printf("  attributes: %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n", BINFLG16(mdb->drAtrb));
-    printf("  files:      %d\n", mdb->drNmFls);
-    printf("  dir.start:  %d\n", mdb->drDirSt);
-    printf("  dir.len:    %d\n", mdb->drBlLen);
-    printf("  al.bks:     %d\n", mdb->drNmAlBlks);
-    printf("  al.bksz:    %d\n", mdb->drAlBlkSiz);
-    printf("  al.bytes:   %d\n", mdb->drClpSiz);
-    printf("  al.first:   %d\n", mdb->drAlBlSt);
-    printf("  fn.next:    %d\n", mdb->drNxtFNum);
-    printf("  free:       %d\n", mdb->drFreeBks);
+    fprintf(stderr, "  backup:     %s", asctime(localtime(&t)));
+    fprintf(stderr, "  attributes: %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n", BINFLG16(mdb->drAtrb));
+    fprintf(stderr, "  files:      %d\n", mdb->drNmFls);
+    fprintf(stderr, "  dir.start:  %d\n", mdb->drDirSt);
+    fprintf(stderr, "  dir.len:    %d\n", mdb->drBlLen);
+    fprintf(stderr, "  al.bks:     %d\n", mdb->drNmAlBlks);
+    fprintf(stderr, "  al.bksz:    %d\n", mdb->drAlBlkSiz);
+    fprintf(stderr, "  al.bytes:   %d\n", mdb->drClpSiz);
+    fprintf(stderr, "  al.first:   %d\n", mdb->drAlBlSt);
+    fprintf(stderr, "  fn.next:    %d\n", mdb->drNxtFNum);
+    fprintf(stderr, "  free:       %d\n", mdb->drFreeBks);
     char volName[28];
     strncpy(volName, (char*)&mdb->drVN[1], mdb->drVN[0]);
-    printf("  name:       %s\n", volName);
-    
+    fprintf(stderr, "  name:       %s\n", volName);
+    fflush(stderr);
 }
 
 int mfs_printrecord (MFSDirectoryRecord *rec) {
-    printf("DIRECTORY RECORD:\n");
-    printf("  name:     %s\n", rec->flCName);
-    printf("  flags:    %c%c%c%c%c%c%c%c\n", BINFLG8(rec->flFlags));
-    printf("  version:  %d\n", rec->flTyp);
-    printf("  inode:    %d\n", rec->flFlNum);
-    printf("  data.blk: %d\n", rec->flStBlk);
-    printf("  data.lgl: %d\n", rec->flLgLen);
-    printf("  data.pyl: %d\n", rec->flPyLen);
-    printf("  rsrc.blk: %d\n", rec->flRStBlk);
-    printf("  rsrc.lgl: %d\n", rec->flRLgLen);
-    printf("  rsrc.pyl: %d\n", rec->flRPyLen);
+    fprintf(stderr, "DIRECTORY RECORD:\n");
+    fprintf(stderr, "  name:     %s\n", rec->flCName);
+    fprintf(stderr, "  flags:    %c%c%c%c%c%c%c%c\n", BINFLG8(rec->flFlags));
+    fprintf(stderr, "  version:  %d\n", rec->flTyp);
+    fprintf(stderr, "  inode:    %d\n", rec->flFlNum);
+    fprintf(stderr, "  data.blk: %d\n", rec->flStBlk);
+    fprintf(stderr, "  data.lgl: %d\n", rec->flLgLen);
+    fprintf(stderr, "  data.pyl: %d\n", rec->flPyLen);
+    fprintf(stderr, "  rsrc.blk: %d\n", rec->flRStBlk);
+    fprintf(stderr, "  rsrc.lgl: %d\n", rec->flRLgLen);
+    fprintf(stderr, "  rsrc.pyl: %d\n", rec->flRPyLen);
     time_t t = mfs_time(rec->flCrDat);
-    printf("  created:  %s", asctime(localtime(&t)));
+    fprintf(stderr, "  created:  %s", asctime(localtime(&t)));
     t = mfs_time(rec->flMdDat);
-    printf("  modified: %s", asctime(localtime(&t)));
+    fprintf(stderr, "  modified: %s", asctime(localtime(&t)));
     // user words
-    printf("  folder: %d\n", ntohs(rec->flUsrWds.folder));
+    fprintf(stderr, "  folder: %d\n", ntohs(rec->flUsrWds.folder));
     uint16_t fflags = ntohs(rec->flUsrWds.flags);
-    printf("  fflags: %04X\n%s%s%s%s%s%s%s%s%s", fflags,
+    fprintf(stderr, "  fflags: %04X\n%s%s%s%s%s%s%s%s%s", fflags,
         ((fflags & kIsOnDesk)?          "          on desktop\n":""),
-        ((fflags & kSwitchLaunch)?      "          switch launch\n":""),
+        ((fflags & kRequireSwitchLaunch)?"          switch launch\n":""),
         ((fflags & kIsShared)?          "          shared\n":""),
         ((fflags & kHasNoINITs)?        "          no INITs\n":""),
         ((fflags & kHasBeenInited)?     "          inited\n":""),
@@ -210,6 +209,7 @@ int mfs_printrecord (MFSDirectoryRecord *rec) {
         ((fflags & kHasBundle)?         "          bundle\n":""),
         ((fflags & kIsInvisible)?       "          invisible\n":"")
         );
+	fflush(stderr);
 }
 #endif
 
@@ -395,34 +395,8 @@ MFSFork* mfs_fkopen (MFSVolume *vol, MFSDirectoryRecord *rec, int mode, int writ
         // header
         as->magic = htonl(kAppleDoubleMagic);
         as->version = htonl(kAppleDoubleVersion);
-        memcpy(&as->filesystem, "Macintosh       ", 16);
+        memcpy(&as->filesystem, "Mac OS X        ", 16);
         int e = 0;
-        
-        // resource fork
-        if (fk->fkLgLen) {
-            as->entry[e].type = htonl(kAppleDoubleResourceForkEntry);
-            as->entry[e].offset = htonl(kAppleDoubleResourceForkOffset);
-            as->entry[e].length = htonl((uint32_t)fk->fkLgLen);
-            e++;
-        }
-        
-        // real name
-        as->entry[e].type = htonl(kAppleDoubleRealNameEntry);
-        as->entry[e].offset = htonl(kAppleDoubleRealNameOffset);
-        as->entry[e].length = htonl((uint32_t)(rec->flNam[0]));
-        strcpy((void*)as+kAppleDoubleRealNameOffset, rec->flCName);
-        e++;
-        
-        // file info
-        as->entry[e].type = htonl(kAppleDoubleFileInfoEntry);
-        as->entry[e].offset = htonl(kAppleDoubleFileInfoOffset);
-        as->entry[e].length = htonl(kAppleDoubleFileInfoLength);
-        AppleDoubleMacFileInfo *mfi = (void*)as+kAppleDoubleFileInfoOffset;
-        mfi->creationDate = htonl(rec->flCrDat);
-        mfi->modificationDate = htonl(rec->flMdDat);
-        mfi->backupDate = htonl(0);
-        mfi->attributes = htonl((uint32_t)(rec->flFlags & 0x7F));
-        e++;
         
         // finder info
         as->entry[e].type = htonl(kAppleDoubleFinderInfoEntry);
@@ -430,7 +404,7 @@ MFSFork* mfs_fkopen (MFSVolume *vol, MFSDirectoryRecord *rec, int mode, int writ
         as->entry[e].length = htonl(kAppleDoubleFinderInfoLength);
         memcpy((void*)as+kAppleDoubleFinderInfoOffset, &rec->flUsrWds, 16);
         e++;
-        
+        /*
         // finder comment
 #ifdef USE_LIBRES
         size_t commentLength;
@@ -441,7 +415,17 @@ MFSFork* mfs_fkopen (MFSVolume *vol, MFSDirectoryRecord *rec, int mode, int writ
             e++;
         }
 #endif
-        
+        */
+		
+		// resource fork
+		// kernel complains if it's not the last entry
+        if (fk->fkLgLen) {
+            as->entry[e].type = htonl(kAppleDoubleResourceForkEntry);
+            as->entry[e].offset = htonl(kAppleDoubleResourceForkOffset);
+            as->entry[e].length = htonl((uint32_t)fk->fkLgLen);
+            e++;
+        }
+		
         // number of entries written
         as->numEntries = htons(e);
     }
@@ -473,26 +457,8 @@ MFSFork* mfs_dhopen (MFSVolume *vol, MFSFolder *folder) {
     // header
     as->magic = htonl(kAppleDoubleMagic);
     as->version = htonl(kAppleDoubleVersion);
-    memcpy(&as->filesystem, "Macintosh       ", 16);
+    memcpy(&as->filesystem, "Mac OS X        ", 16);
     int e = 0;
-    
-    // real name
-    as->entry[e].type = htonl(kAppleDoubleRealNameEntry);
-    as->entry[e].offset = htonl(kAppleDoubleRealNameOffset);
-    as->entry[e].length = htonl(strlen(folder->fdCNam));
-    strcpy((void*)as+kAppleDoubleRealNameOffset, folder->fdCNam);
-    e++;
-    
-    // file info
-    as->entry[e].type = htonl(kAppleDoubleFileInfoEntry);
-    as->entry[e].offset = htonl(kAppleDoubleFileInfoOffset);
-    as->entry[e].length = htonl(kAppleDoubleFileInfoLength);
-    AppleDoubleMacFileInfo *mfi = (void*)as+kAppleDoubleFileInfoOffset;
-    mfi->creationDate = htonl(folder->fdCrDat);
-    mfi->modificationDate = htonl(folder->fdMdDat);
-    mfi->backupDate = htonl(0);
-    mfi->attributes = htonl(0);
-    e++;
     
     // finder info
     MFSFInfo finfo = {0, 0, 0, {0, 0}, 0};
@@ -505,6 +471,8 @@ MFSFork* mfs_dhopen (MFSVolume *vol, MFSFolder *folder) {
     memcpy((void*)as+kAppleDoubleFinderInfoOffset, &finfo, 16);
     e++;
     
+    // TODO: finder comment as xattr
+    /*
     // finder comment
 #ifdef USE_LIBRES
     size_t commentLength;
@@ -515,7 +483,7 @@ MFSFork* mfs_dhopen (MFSVolume *vol, MFSFolder *folder) {
         e++;
     }
 #endif
-    
+    */
     // number of entries written
     as->numEntries = htons(e);
     
@@ -691,10 +659,11 @@ int mfs_load_folders (MFSVolume *vol) {
     
     // print folders
     #if defined(LIBMFS_VERBOSE)
-    printf("FOLDERS:\n#      PAR#   SUB NAME\n");
+    fprintf(stderr, "FOLDERS:\n#      PAR#   SUB NAME\n");
     for(i=0; i < count; i++)
-        printf("%-7hd%-7hd%-4hd%s\n", vol->folders[i].fdID, vol->folders[i].fdParent, 
+        fprintf(stderr, "%-7hd%-7hd%-4hd%s\n", vol->folders[i].fdID, vol->folders[i].fdParent, 
                 vol->folders[i].fdSubdirs, vol->folders[i].fdCNam);
+	fflush(stderr);
     #endif
     
     free(fobj);
